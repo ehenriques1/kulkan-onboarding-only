@@ -83,7 +83,7 @@ export default function OnboardingFlow() {
               You're about to start our onboarding process.  
             </p>
             <p className="text-lg leading-relaxed font-semibold">
-              <span className="text-gray-700">✨ Pro Tip:</span> If you need help answering any question, feel free to <strong>use AI to enrich your responses.</strong> The more thoughtful and detailed your answers, the better the insights we’ll generate for you.
+              <span className="text-gray-700">✨ Pro Tip:</span> If you need help answering any question, feel free to <strong>use AI on your own to enrich your responses.</strong> The more thoughtful and detailed your answers, the better the insights we’ll generate for you.
             </p>
             <p className="text-base text-gray-500">
               High-quality input = High-impact strategic output.
@@ -114,7 +114,9 @@ export default function OnboardingFlow() {
             <div className="mb-6 max-h-96 overflow-y-auto bg-gray-100 rounded p-4 space-y-6 max-w-lg mx-auto">
               {history.map((msg, i) =>
                 msg.role === "agent" ? (
-                  <KulkanMessage key={i} body={[msg.message]} question="" />
+                  <KulkanMessage key={i}>
+                    <p>{msg.message}</p>
+                  </KulkanMessage>
                 ) : (
                   <UserMessage key={i} content={msg.message} />
                 )
