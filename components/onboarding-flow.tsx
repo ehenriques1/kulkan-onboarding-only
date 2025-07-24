@@ -2,8 +2,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function OnboardingFlow() {
+  const router = useRouter();
   const [history, setHistory] = useState<{ role: "agent" | "user"; message: string }[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,6 +59,15 @@ export default function OnboardingFlow() {
       const data = await res.json();
       setHistory([...newHistory, { role: "agent" as const, message: data.message }]);
       setDone(data.done || false);
+      
+      // Check if n8n wants to redirect to review page
+      if (data.redirectToReview) {
+        // Store session ID in localStorage for the review page
+        localStorage.setItem('onboardingSessionId', sessionId);
+        router.push('/review');
+        return;
+      }
+      
       if (!data.done && inputRef.current) inputRef.current.focus();
     } catch (e) {
       setError("Failed to send message. Please try again.");
@@ -119,7 +130,7 @@ export default function OnboardingFlow() {
           <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={90} height={30} className="inline-block" />
           <span className="font-bold text-lg text-gray-700">Kulkan Onboarding</span>
         </div>
-        <div className="flex-1 flex flex-col justify-end w-full px-4 py-4 space-y-3 overflow-y-auto min-h-[300px] max-h-[60vh]">
+        <div className="flex-1 flex flex-col justify-start w-full px-4 py-4 space-y-3 overflow-y-auto min-h-[300px] max-h-[60vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {history.map((msg, i) =>
             msg.role === "agent"
               ? <div key={i}>{renderAgentMessage(msg.message)}</div>
