@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
+import { KulkanMessage } from "@/components/KulkanMessage";
+import { UserMessage } from "@/components/UserMessage";
 
 export default function OnboardingFlow() {
   const [history, setHistory] = useState<{ role: "agent" | "user"; message: string }[]>([]) // [{role: "agent"|"user", message: string}]
@@ -105,16 +107,18 @@ export default function OnboardingFlow() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">Kulkan Onboarding</h2>
-                <p className="text-gray-600">Conversational onboarding powered by your AI agent</p>
+                <p className="text-gray-600">Ground your gut within 24 hrs.</p>
               </div>
             </div>
 
-            <div className="mb-6 max-h-96 overflow-y-auto bg-gray-100 rounded p-4">
-              {history.map((msg, i) => (
-                <div key={i} className={`mb-3 ${msg.role === "agent" ? "text-blue-800" : "text-gray-800"}`}>
-                  <b>{msg.role === "agent" ? "Kulkan AI" : "You"}:</b> {msg.message}
-                </div>
-              ))}
+            <div className="mb-6 max-h-96 overflow-y-auto bg-gray-100 rounded p-4 space-y-6 max-w-lg mx-auto">
+              {history.map((msg, i) =>
+                msg.role === "agent" ? (
+                  <KulkanMessage key={i} body={[msg.message]} question="" />
+                ) : (
+                  <UserMessage key={i} content={msg.message} />
+                )
+              )}
               {loading && <div className="text-blue-400">Kulkan AI is typing...</div>}
             </div>
 
