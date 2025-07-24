@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 export default function OnboardingFlow() {
   const [history, setHistory] = useState<{ role: "agent" | "user"; message: string }[]>([]);
@@ -9,32 +10,48 @@ export default function OnboardingFlow() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [sessionId] = useState(() => `session-${Date.now()}`);
+  const [showPopup, setShowPopup] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Example: initial AI message
   useEffect(() => {
     setHistory([
       {
-        role: "agent",
+        role: "agent" as const,
         message:
           "Hi there! I'm Kulkan’s onboarding strategist.\nI’ll ask you a few simple questions to understand your startup.\nBased on your stage, I’ll adapt the questions to keep it relevant and focused.\nIt should take just a few minutes.\n\n👉 What’s the name of your startup?",
       },
     ]);
   }, []);
 
-  function handleSend(e: React.FormEvent) {
+  async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     if (!input.trim() || loading || done) return;
-    setHistory([...history, { role: "user", message: input }]);
+    setLoading(true);
+    setError("");
+    const newHistory = [...history, { role: "user" as const, message: input }];
+    setHistory(newHistory);
     setInput("");
-    // Here you would trigger the AI response and update history
+    try {
+      const res = await fetch("/api/webhook/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, history: newHistory }),
+      });
+      const data = await res.json();
+      setHistory([...newHistory, { role: "agent" as const, message: data.message }]);
+      setDone(data.done || false);
+      if (!data.done && inputRef.current) inputRef.current.focus();
+    } catch (e) {
+      setError("Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Helper to split agent message into paragraphs and bold the last question
   function renderAgentMessage(msg: string) {
     const parts = msg.split(/\n+/).filter(Boolean);
     return (
-      <div className="max-w-2xl space-y-3 text-gray-800 text-base leading-relaxed">
+      <div className="text-left max-w-xl w-full space-y-2 text-gray-800 text-base leading-relaxed">
         {parts.map((p, i) =>
           i === parts.length - 1 && p.startsWith("👉") ? (
             <p key={i} className="font-semibold">{p}</p>
@@ -47,40 +64,77 @@ export default function OnboardingFlow() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12 text-center">
-      {history.map((msg, i) =>
-        msg.role === "agent" ? (
-          <div key={i}>{renderAgentMessage(msg.message)}</div>
-        ) : (
-          <div key={i} className="w-full flex justify-end max-w-2xl mx-auto">
-            <div className="bg-yellow-100 text-gray-900 rounded-lg px-4 py-2 text-right max-w-xs w-fit font-medium mb-2">
-              {msg.message}
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-gray-50">
+      {showPopup && (
+        <div id="kulkan-popup" className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white max-w-md w-[90%] p-8 rounded-2xl shadow-xl text-gray-800 text-center space-y-6">
+            <div className="flex flex-col items-center">
+              <div className="mb-2">
+                <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={120} height={40} className="inline-block" />
+              </div>
+              <h2 className="text-3xl font-bold text-black">Welcome to Kulkan!</h2>
             </div>
+            <p className="text-lg leading-relaxed">
+              You're about to start our onboarding process.  
+            </p>
+            <p className="text-lg leading-relaxed font-semibold">
+              <span className="text-gray-700">✨ Pro Tip:</span> If you need help answering any question, feel free to <strong>use AI on your own to enrich your responses.</strong> The more thoughtful and detailed your answers, the better the insights we’ll generate for you.
+            </p>
+            <p className="text-base text-gray-500">
+              High-quality input = High-impact strategic output.
+            </p>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="mt-4 px-7 py-3 rounded-full transition font-bold text-xl"
+              style={{ backgroundColor: '#EFFF4B', color: '#222', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            >
+              Got it, let's begin!
+            </button>
           </div>
-        )
+        </div>
       )}
-      <form
-        className="w-full max-w-xl mt-8 flex flex-col sm:flex-row gap-3 items-center"
-        onSubmit={handleSend}
-      >
-        <input
-          type="text"
-          className="max-w-xl w-full px-4 py-2 border rounded"
-          placeholder="Type your answer..."
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          ref={inputRef}
-          disabled={loading || done}
-        />
-        <button
-          type="submit"
-          className="bg-yellow-200 px-4 py-2 rounded font-semibold"
-          disabled={loading || !input.trim() || done}
+      <div className="flex flex-col justify-between items-stretch max-w-2xl w-full min-h-[600px] bg-white/80 rounded-xl p-0 relative">
+        <div className="flex items-center gap-2 px-6 pt-6 pb-2">
+          <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={100} height={32} className="inline-block" />
+        </div>
+        <div className="flex-1 flex flex-col justify-end px-6 pb-4 space-y-4">
+          {history.map((msg, i) =>
+            msg.role === "agent" ? (
+              <div key={i} className="flex justify-start">
+                {renderAgentMessage(msg.message)}
+              </div>
+            ) : (
+              <div key={i} className="flex justify-end">
+                <div className="bg-yellow-100 text-gray-900 rounded-lg px-4 py-2 text-right max-w-xs w-fit font-medium mb-2">
+                  {msg.message}
+                </div>
+              </div>
+            )
+          )}
+        </div>
+        <form
+          className="w-full max-w-xl mx-auto mt-4 mb-8 flex flex-col sm:flex-row gap-3 items-center px-6"
+          onSubmit={handleSend}
         >
-          Send
-        </button>
-      </form>
-      {error && <div className="text-red-600 mt-4">{error}</div>}
+          <input
+            type="text"
+            className="max-w-xl w-full px-4 py-2 border rounded"
+            placeholder="Type your answer..."
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            ref={inputRef}
+            disabled={loading || done}
+          />
+          <button
+            type="submit"
+            className="bg-yellow-200 px-4 py-2 rounded font-semibold"
+            disabled={loading || !input.trim() || done}
+          >
+            Send
+          </button>
+        </form>
+        {error && <div className="text-red-600 mt-4 text-center">{error}</div>}
+      </div>
     </div>
   );
 }
