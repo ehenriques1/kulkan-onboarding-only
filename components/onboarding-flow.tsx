@@ -51,20 +51,33 @@ export default function OnboardingFlow() {
   function renderAgentMessage(msg: string) {
     const parts = msg.split(/\n+/).filter(Boolean);
     return (
-      <div className="text-left max-w-xl w-full space-y-2 text-gray-800 text-base leading-relaxed">
-        {parts.map((p, i) =>
-          i === parts.length - 1 && p.startsWith("👉") ? (
-            <p key={i} className="font-semibold">{p}</p>
-          ) : (
-            <p key={i} className="mb-2">{p}</p>
-          )
-        )}
+      <div className="flex items-start gap-2">
+        <Image src="/kulkan-icon.svg" alt="Kulkan" width={32} height={32} className="rounded-full mt-1" />
+        <div className="bg-gray-100 rounded-xl px-4 py-2 text-left text-gray-800 max-w-[75%]">
+          {parts.map((p, i) =>
+            i === parts.length - 1 && p.startsWith("👉") ? (
+              <p key={i} className="font-semibold mt-2">{p}</p>
+            ) : (
+              <p key={i} className="mb-1">{p}</p>
+            )
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function renderUserMessage(msg: string) {
+    return (
+      <div className="flex justify-end">
+        <div className="bg-yellow-200 rounded-xl px-4 py-2 text-right text-gray-900 max-w-[75%] shadow font-medium">
+          {msg}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-gray-50">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-50 px-2 py-6">
       {showPopup && (
         <div id="kulkan-popup" className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-white max-w-md w-[90%] p-8 rounded-2xl shadow-xl text-gray-800 text-center space-y-6">
@@ -93,32 +106,25 @@ export default function OnboardingFlow() {
           </div>
         </div>
       )}
-      <div className="flex flex-col justify-between items-center max-w-2xl w-full min-h-[600px] bg-white/80 rounded-xl p-0 relative shadow-none border-none">
-        <div className="flex items-center gap-2 px-4 pt-2 pb-0 w-full">
-          <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={100} height={32} className="inline-block" />
+      <div className="flex flex-col justify-between items-center max-w-md sm:max-w-lg w-full min-h-[600px] bg-white rounded-2xl shadow-lg border border-gray-200 p-0 relative">
+        <div className="flex items-center gap-3 px-6 pt-6 pb-3 w-full border-b border-gray-100">
+          <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={90} height={30} className="inline-block" />
+          <span className="font-bold text-lg text-gray-700">Kulkan Onboarding</span>
         </div>
-        <div className="flex-1 flex flex-col justify-end w-full px-4 pb-2 space-y-4">
+        <div className="flex-1 flex flex-col justify-end w-full px-4 py-4 space-y-3 overflow-y-auto min-h-[300px] max-h-[60vh]">
           {history.map((msg, i) =>
-            msg.role === "agent" ? (
-              <div key={i} className="flex justify-start w-full">
-                <div>{renderAgentMessage(msg.message)}</div>
-              </div>
-            ) : (
-              <div key={i} className="flex justify-end w-full">
-                <div className="bg-yellow-100 text-gray-900 rounded-lg px-4 py-2 text-right max-w-xs w-fit font-medium mb-2 mr-2">
-                  {msg.message}
-                </div>
-              </div>
-            )
+            msg.role === "agent"
+              ? <div key={i}>{renderAgentMessage(msg.message)}</div>
+              : <div key={i}>{renderUserMessage(msg.message)}</div>
           )}
         </div>
         <form
-          className="w-full max-w-xl mx-auto mt-4 mb-8 flex flex-col sm:flex-row gap-3 items-center px-4"
+          className="w-full max-w-xl mx-auto mt-2 mb-6 flex flex-col sm:flex-row gap-3 items-center px-4"
           onSubmit={handleSend}
         >
           <input
             type="text"
-            className="max-w-xl w-full px-4 py-2 border rounded"
+            className="max-w-xl w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-yellow-200"
             placeholder="Type your answer..."
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -127,13 +133,13 @@ export default function OnboardingFlow() {
           />
           <button
             type="submit"
-            className="bg-yellow-200 px-4 py-2 rounded font-semibold"
+            className="bg-yellow-200 px-4 py-2 rounded font-semibold shadow hover:bg-yellow-300 transition"
             disabled={loading || !input.trim() || done}
           >
             Send
           </button>
         </form>
-        {error && <div className="text-red-600 mt-4 text-center">{error}</div>}
+        {error && <div className="text-red-600 mt-2 text-center">{error}</div>}
       </div>
     </div>
   );
