@@ -73,9 +73,9 @@ export default function OnboardingFlow() {
           <div className="bg-white max-w-md w-[90%] p-8 rounded-2xl shadow-xl text-gray-800 text-center space-y-6">
             <div className="flex flex-col items-center">
               <div className="mb-2">
-                <Image src="/kulkan-icon.svg" alt="Kulkan Logo" width={56} height={56} className="inline-block" />
+                <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={120} height={40} className="inline-block" />
               </div>
-              <h2 className="text-3xl font-bold" style={{ color: '#EFFF4B' }}>👋 Welcome to Kulkan!</h2>
+              <h2 className="text-3xl font-bold text-black">Welcome to Kulkan!</h2>
             </div>
             <p className="text-lg leading-relaxed">
               You're about to start our onboarding process.  
