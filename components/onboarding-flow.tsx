@@ -93,19 +93,19 @@ export default function OnboardingFlow() {
           </div>
         </div>
       )}
-      <div className="flex flex-col justify-between items-stretch max-w-2xl w-full min-h-[600px] bg-white/80 rounded-xl p-0 relative">
-        <div className="flex items-center gap-2 px-6 pt-6 pb-2">
+      <div className="flex flex-col justify-between items-center max-w-2xl w-full min-h-[600px] bg-white/80 rounded-xl p-0 relative shadow-none border-none">
+        <div className="flex items-center gap-2 px-8 pt-8 pb-4 w-full">
           <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={100} height={32} className="inline-block" />
         </div>
-        <div className="flex-1 flex flex-col justify-end px-6 pb-4 space-y-4">
+        <div className="flex-1 flex flex-col justify-end w-full px-8 pb-4 space-y-4">
           {history.map((msg, i) =>
             msg.role === "agent" ? (
-              <div key={i} className="flex justify-start">
-                {renderAgentMessage(msg.message)}
+              <div key={i} className="flex justify-start w-full">
+                <div className="ml-2">{renderAgentMessage(msg.message)}</div>
               </div>
             ) : (
-              <div key={i} className="flex justify-end">
-                <div className="bg-yellow-100 text-gray-900 rounded-lg px-4 py-2 text-right max-w-xs w-fit font-medium mb-2">
+              <div key={i} className="flex justify-end w-full">
+                <div className="bg-yellow-100 text-gray-900 rounded-lg px-4 py-2 text-right max-w-xs w-fit font-medium mb-2 mr-2">
                   {msg.message}
                 </div>
               </div>
@@ -113,7 +113,7 @@ export default function OnboardingFlow() {
           )}
         </div>
         <form
-          className="w-full max-w-xl mx-auto mt-4 mb-8 flex flex-col sm:flex-row gap-3 items-center px-6"
+          className="w-full max-w-xl mx-auto mt-4 mb-8 flex flex-col sm:flex-row gap-3 items-center px-8"
           onSubmit={handleSend}
         >
           <input
