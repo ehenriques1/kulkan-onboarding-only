@@ -237,7 +237,7 @@ export default function OnboardingFlow() {
     }
   }
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     // Create a mock session with sample responses for testing
     const mockSession: OnboardingSession = {
       id: crypto.randomUUID(),
@@ -248,6 +248,37 @@ export default function OnboardingFlow() {
     }
 
     setSession(mockSession)
+    
+    try {
+      // Send onboarding data to n8n webhook even when skipping
+      const webhookData = {
+        sessionId: mockSession.id,
+        responses: mockSession.responses,
+        completedAt: new Date().toISOString(),
+        totalQuestions: mockSession.responses.length,
+        skipped: true
+      }
+
+      const response = await fetch('/api/webhook/onboarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      })
+
+      const result = await response.json();
+      console.log("n8n response:", result);
+
+      if (response.ok) {
+        console.log('Skipped onboarding data sent to n8n successfully')
+      } else {
+        console.error('Failed to send skipped data to n8n webhook')
+      }
+    } catch (error) {
+      console.error('Error sending skipped data to n8n webhook:', error)
+    }
+    
     setShowReview(true)
   }
 
@@ -260,9 +291,41 @@ export default function OnboardingFlow() {
     }))
   }
 
-  const handleApproveAnalysis = () => {
-    // Redirect to analysis page
-    window.location.href = "/analysis"
+  const handleApproveAnalysis = async () => {
+    try {
+      // Send onboarding data to n8n webhook
+      const webhookData = {
+        sessionId: session.id,
+        responses: session.responses,
+        completedAt: new Date().toISOString(),
+        totalQuestions: session.responses.length
+      }
+
+      const response = await fetch('/api/webhook/onboarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      })
+
+      const result = await response.json();
+      console.log("n8n response:", result);
+
+      if (response.ok) {
+        console.log('Onboarding data sent to n8n successfully')
+        // Redirect to analysis page
+        window.location.href = "/analysis"
+      } else {
+        console.error('Failed to send data to n8n webhook')
+        // Still redirect even if webhook fails
+        window.location.href = "/analysis"
+      }
+    } catch (error) {
+      console.error('Error sending data to n8n webhook:', error)
+      // Still redirect even if webhook fails
+      window.location.href = "/analysis"
+    }
   }
 
   const handleBackToQuestions = () => {
