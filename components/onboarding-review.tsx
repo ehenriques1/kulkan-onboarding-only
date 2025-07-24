@@ -19,9 +19,10 @@ interface OnboardingReviewProps {
   onEdit: (questionId: number) => void
   onApprove: () => void
   onBack: () => void
+  isProcessing?: boolean
 }
 
-export default function OnboardingReview({ session, onEdit, onApprove, onBack }: OnboardingReviewProps) {
+export default function OnboardingReview({ session, onEdit, onApprove, onBack, isProcessing = false }: OnboardingReviewProps) {
   const [editingQuestion, setEditingQuestion] = useState<number | null>(null)
   const [editedAnswers, setEditedAnswers] = useState<{ [key: number]: string }>({})
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false)
@@ -213,9 +214,12 @@ export default function OnboardingReview({ session, onEdit, onApprove, onBack }:
             </Button>
             <button
               onClick={handleApproveClick}
-              className="bg-kulkan-green hover:bg-kulkan-green/80 active:bg-kulkan-green/70 focus:bg-kulkan-green focus:ring-4 focus:ring-kulkan-green/30 text-black px-12 py-4 text-lg font-bold rounded-md shadow-md border-2 border-kulkan-green hover:border-kulkan-green/80 active:border-kulkan-green/70 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+              disabled={isProcessing}
+              className={`bg-kulkan-green hover:bg-kulkan-green/80 active:bg-kulkan-green/70 focus:bg-kulkan-green focus:ring-4 focus:ring-kulkan-green/30 text-black px-12 py-4 text-lg font-bold rounded-md shadow-md border-2 border-kulkan-green hover:border-kulkan-green/80 active:border-kulkan-green/70 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] ${
+                isProcessing ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Submit for Analysis
+              {isProcessing ? "Processing..." : "Submit for Analysis"}
             </button>
           </div>
         </div>

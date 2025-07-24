@@ -134,6 +134,8 @@ export default function OnboardingFlow() {
   const [isLoading, setIsLoading] = useState(false)
   const [showFollowUp, setShowFollowUp] = useState(false)
   const [showReview, setShowReview] = useState(false)
+  const [n8nResponse, setN8nResponse] = useState<any>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const { animationState, isTransitioning, transitionToNext, transitionToPrevious } = useQuestionAnimation()
 
@@ -292,6 +294,7 @@ export default function OnboardingFlow() {
   }
 
   const handleApproveAnalysis = async () => {
+    setIsProcessing(true)
     try {
       // Send onboarding data to n8n webhook
       const webhookData = {
@@ -314,17 +317,19 @@ export default function OnboardingFlow() {
 
       if (response.ok) {
         console.log('Onboarding data sent to n8n successfully')
-        // Redirect to analysis page
-        window.location.href = "/analysis"
+        setN8nResponse(result)
+        setShowReview(false) // Hide review, show n8n response
       } else {
         console.error('Failed to send data to n8n webhook')
-        // Still redirect even if webhook fails
-        window.location.href = "/analysis"
+        setN8nResponse({ error: 'Failed to get analysis from n8n' })
+        setShowReview(false)
       }
     } catch (error) {
       console.error('Error sending data to n8n webhook:', error)
-      // Still redirect even if webhook fails
-      window.location.href = "/analysis"
+      setN8nResponse({ error: 'Error connecting to n8n' })
+      setShowReview(false)
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -345,6 +350,70 @@ export default function OnboardingFlow() {
     }
   }
 
+  // Show n8n response if available
+  if (n8nResponse) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <Card className="w-full max-w-4xl animate-slide-in-right">
+          <CardContent className="p-8">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 mr-4">
+                <Image src="/kulkan-icon.svg" alt="Kulkan AI" width={48} height={48} className="w-full h-full" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">AI Analysis Complete</h2>
+                <p className="text-gray-600">Your startup analysis from n8n</p>
+              </div>
+            </div>
+
+            {n8nResponse.error ? (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <h3 className="text-red-800 font-semibold mb-2">Error</h3>
+                <p className="text-red-700">{n8nResponse.error}</p>
+                <Button 
+                  onClick={() => setN8nResponse(null)} 
+                  className="mt-4"
+                  variant="outline"
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h3 className="text-green-800 font-semibold mb-2">✅ Analysis Received</h3>
+                  <p className="text-green-700">Your onboarding data has been processed by n8n</p>
+                </div>
+                
+                <div className="bg-white border rounded-lg p-6">
+                  <h3 className="font-semibold mb-4">n8n Response:</h3>
+                  <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto max-h-96">
+                    {JSON.stringify(n8nResponse, null, 2)}
+                  </pre>
+                </div>
+
+                <div className="flex space-x-4">
+                  <Button 
+                    onClick={() => setN8nResponse(null)} 
+                    variant="outline"
+                  >
+                    Back to Review
+                  </Button>
+                  <Button 
+                    onClick={() => setShowReview(true)} 
+                    className="bg-kulkan-green hover:bg-kulkan-dark-green"
+                  >
+                    View Full Analysis
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   // Show review page if onboarding is complete
   if (showReview) {
     return (
@@ -353,6 +422,7 @@ export default function OnboardingFlow() {
         onEdit={handleEditQuestion}
         onApprove={handleApproveAnalysis}
         onBack={handleBackToQuestions}
+        isProcessing={isProcessing}
       />
     )
   }
