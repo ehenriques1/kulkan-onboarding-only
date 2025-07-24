@@ -111,7 +111,7 @@ export default function OnboardingFlow() {
           <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={90} height={30} className="inline-block" />
           <span className="font-bold text-lg text-gray-700">Kulkan Onboarding</span>
         </div>
-        <div className="flex-1 flex flex-col justify-end w-full px-4 py-4 space-y-3 overflow-y-auto min-h-[300px] max-h-[60vh]">
+        <div className="flex-1 flex flex-col justify-start w-full px-4 py-4 space-y-3 overflow-y-auto min-h-[300px] max-h-[60vh]">
           {history.map((msg, i) =>
             msg.role === "agent"
               ? <div key={i}>{renderAgentMessage(msg.message)}</div>
