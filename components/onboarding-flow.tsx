@@ -94,14 +94,14 @@ export default function OnboardingFlow() {
         </div>
       )}
       <div className="flex flex-col justify-between items-center max-w-2xl w-full min-h-[600px] bg-white/80 rounded-xl p-0 relative shadow-none border-none">
-        <div className="flex items-center gap-2 px-4 pt-2 pb-2 w-full">
+        <div className="flex items-center gap-2 px-4 pt-2 pb-0 w-full">
           <Image src="/kulkan-logo.svg" alt="Kulkan Logo" width={100} height={32} className="inline-block" />
         </div>
         <div className="flex-1 flex flex-col justify-end w-full px-4 pb-2 space-y-4">
           {history.map((msg, i) =>
             msg.role === "agent" ? (
               <div key={i} className="flex justify-start w-full">
-                <div className="ml-2">{renderAgentMessage(msg.message)}</div>
+                <div>{renderAgentMessage(msg.message)}</div>
               </div>
             ) : (
               <div key={i} className="flex justify-end w-full">
