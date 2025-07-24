@@ -13,6 +13,7 @@ export default function OnboardingFlow() {
   const [done, setDone] = useState(false)
   const [error, setError] = useState("")
   const [sessionId] = useState(() => `session-${Date.now()}`)
+  const [showPopup, setShowPopup] = useState(true)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Start the chat on mount
@@ -45,6 +46,7 @@ export default function OnboardingFlow() {
     setLoading(true)
     setError("")
     const newHistory = [...history, { role: "user" as const, message: input }]
+    console.log("Sending history:", newHistory)
     setHistory(newHistory)
     setInput("")
     try {
@@ -66,6 +68,28 @@ export default function OnboardingFlow() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      {showPopup && (
+        <div id="kulkan-popup" className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white max-w-md w-[90%] p-6 rounded-2xl shadow-xl text-gray-800 text-center space-y-4">
+            <h2 className="text-2xl font-semibold text-green-600">👋 Welcome to Kulkan!</h2>
+            <p className="text-base leading-relaxed">
+              You're about to start our onboarding process.  
+            </p>
+            <p className="text-base leading-relaxed font-medium">
+              <span className="text-gray-700">✨ Pro Tip:</span> If you need help answering any question, feel free to <strong>use AI to enrich your responses.</strong> The more thoughtful and detailed your answers, the better the insights we’ll generate for you.
+            </p>
+            <p className="text-sm text-gray-500">
+              High-quality input = High-impact strategic output.
+            </p>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="mt-4 bg-green-600 text-white px-5 py-2 rounded-full hover:bg-green-700 transition"
+            >
+              Got it, let's begin!
+            </button>
+          </div>
+        </div>
+      )}
       <div className="w-full max-w-2xl">
         <Card className="w-full">
           <CardContent className="p-8">
@@ -74,7 +98,7 @@ export default function OnboardingFlow() {
                 <Image src="/kulkan-icon.svg" alt="Kulkan AI" width={48} height={48} className="w-full h-full" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">Kulkan AI Onboarding</h2>
+                <h2 className="text-2xl font-bold text-gray-800">Kulkan Onboarding</h2>
                 <p className="text-gray-600">Conversational onboarding powered by your AI agent</p>
               </div>
             </div>
@@ -93,6 +117,8 @@ export default function OnboardingFlow() {
             {!done ? (
               <div className="flex gap-2">
                 <Input
+                  id="chat-input"
+                  name="chat-input"
                   ref={inputRef}
                   value={input}
                   onChange={e => setInput(e.target.value)}
