@@ -24,13 +24,19 @@ export default function OnboardingFlow() {
   // Start conversation with first question after popup
   useEffect(() => {
     if (!showPopup && history.length === 0) {
-      setHistory([
-        {
-          role: "agent" as const,
-          message:
-            "Hi there! I'm Kulkan’s onboarding strategist.\nI’ll ask you a few simple questions to understand your startup.\nBased on your stage, I’ll adapt the questions to keep it relevant and focused.\nIt should take just a few minutes.\n\n👉 What’s the name of your startup?",
-        },
-      ]);
+      (async () => {
+        try {
+          const res = await fetch("/api/webhook/onboarding", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionId, history: [] }),
+          });
+          const data = await res.json();
+          setHistory([{ role: "agent" as const, message: data.message }]);
+        } catch {
+          setHistory([{ role: "agent" as const, message: "Sorry, something went wrong. Please refresh." }]);
+        }
+      })();
     }
   }, [showPopup, history.length]);
 
