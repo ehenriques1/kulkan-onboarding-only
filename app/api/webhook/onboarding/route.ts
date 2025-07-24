@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     const data = await req.json();
     console.log('Received webhook data:', data);
 
-    const n8nWebhookUrl = 'https://kulkan.app.n8n.cloud/webhook/65de7c23-d156-4709-a4bc-8b78392d95a9';
+    const n8nWebhookUrl = "https://kulkan.app.n8n.cloud/webhook/6b17aa67-65cf-459c-9b80-1696dc6b4a2f";
     console.log('Forwarding to n8n webhook:', n8nWebhookUrl);
 
     const res = await fetch(n8nWebhookUrl, {
