@@ -153,12 +153,7 @@ export default function OnboardingFlow() {
 
       // Generate follow-up question if needed
       if (currentQuestion?.followUp && !showFollowUp) {
-        try {
-          aiFollowUp = await generateFollowUpQuestion(currentQuestion.question, currentAnswer, session.responses)
-        } catch (error) {
-          console.warn("Follow-up question generation failed:", error)
-          aiFollowUp = "Can you tell me more about that?"
-        }
+        aiFollowUp = "Can you tell me more about that?"
 
         transitionToNext(() => {
           setFollowUpQuestion(aiFollowUp)
@@ -169,13 +164,8 @@ export default function OnboardingFlow() {
         return
       }
 
-      // Generate AI response (optional - can fail if no API key)
-      try {
-        aiResp = await generateAIResponse(currentQuestion?.question || "", currentAnswer, followUpAnswer)
-      } catch (error) {
-        console.warn("AI response generation failed:", error)
-        aiResp = "Thank you for your response. Let's continue to the next question."
-      }
+      // Simple response - no AI needed on frontend
+      aiResp = "Thank you for your response. Let's continue to the next question."
 
       // Save response and transition to next question
       const newResponse: OnboardingResponse = {
