@@ -70,20 +70,26 @@ export default function OnboardingFlow() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       {showPopup && (
         <div id="kulkan-popup" className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white max-w-md w-[90%] p-6 rounded-2xl shadow-xl text-gray-800 text-center space-y-4">
-            <h2 className="text-2xl font-semibold text-green-600">👋 Welcome to Kulkan!</h2>
-            <p className="text-base leading-relaxed">
+          <div className="bg-white max-w-md w-[90%] p-8 rounded-2xl shadow-xl text-gray-800 text-center space-y-6">
+            <div className="flex flex-col items-center">
+              <div className="mb-2">
+                <Image src="/kulkan-icon.svg" alt="Kulkan Logo" width={56} height={56} className="inline-block" />
+              </div>
+              <h2 className="text-3xl font-bold" style={{ color: '#EFFF4B' }}>👋 Welcome to Kulkan!</h2>
+            </div>
+            <p className="text-lg leading-relaxed">
               You're about to start our onboarding process.  
             </p>
-            <p className="text-base leading-relaxed font-medium">
+            <p className="text-lg leading-relaxed font-semibold">
               <span className="text-gray-700">✨ Pro Tip:</span> If you need help answering any question, feel free to <strong>use AI to enrich your responses.</strong> The more thoughtful and detailed your answers, the better the insights we’ll generate for you.
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-base text-gray-500">
               High-quality input = High-impact strategic output.
             </p>
             <button
               onClick={() => setShowPopup(false)}
-              className="mt-4 bg-green-600 text-white px-5 py-2 rounded-full hover:bg-green-700 transition"
+              className="mt-4 px-7 py-3 rounded-full transition font-bold text-xl"
+              style={{ backgroundColor: '#EFFF4B', color: '#222', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
             >
               Got it, let's begin!
             </button>
